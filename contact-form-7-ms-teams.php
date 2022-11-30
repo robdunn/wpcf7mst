@@ -17,7 +17,6 @@ function wpcf7mst_on_submit( $form, &$abort, $submission) {
 
     $options = get_option( 'wpcf7mst_options' );
 
-    //$url = 'https://nonlinearmaterialscom.webhook.office.com/webhookb2/463e201d-71db-486c-adde-407bf2bd876d@6d950ad9-90f9-4c39-965f-06ae940b145c/IncomingWebhook/0a60b280598c4b879352c778f056572c/476aa654-a23e-4179-a9cc-ddfafa81ed02';
     $url = $options['wpcf7mst_field_url'];
     $data = array( 'text' => '<strong>From:</strong> ' . $data['your-name'] . '<br /><strong>Email:</strong> <a href="mailto:' . $data['your-email'] . '">' . $data['your-email'] . '</a><br /><strong>Subject:</strong> ' . $data['your-subject'] . '<br /><strong>Message:</strong> ' . $data['your-message'] );
 
