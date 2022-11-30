@@ -13,7 +13,6 @@ require_once 'vendor/autoload.php';
 function wpcf7mst_on_submit( $form, &$abort, $submission) {
 
     $data = $submission->get_posted_data();
-    error_log("name: " . print_r($data, true), 0);
 
     $options = get_option( 'wpcf7mst_options' );
 
@@ -30,19 +29,11 @@ function wpcf7mst_on_submit( $form, &$abort, $submission) {
         ),
         CURLOPT_POSTFIELDS => json_encode($data)
     ));
-
-    // Send the request
     $response = curl_exec($ch);
-
-    // Check for errors
     if($response === FALSE){
         die(curl_error($ch));
     }
-
-    // Decode the response
     $responseData = json_decode($response, TRUE);
-
-    // Close the cURL handler
     curl_close($ch);
 
     error_log("name: " . print_r($responseData, true), 0);
@@ -68,9 +59,8 @@ function wpcf7mst_settings_init() {
 
 	// Register a new field in the "wpcf7mst_section_developers" section, inside the "wpcf7mst" page.
 	add_settings_field(
-		'wpcf7mst_field_url', // As of WP 4.6 this value is used only internally.
-		                        // Use $args' label_for to populate the id inside the callback.
-			__( 'Webhook URL', 'wpcf7mst' ),
+		'wpcf7mst_field_url',
+		__( 'Webhook URL', 'wpcf7mst' ),
 		'wpcf7mst_field_url_cb',
 		'wpcf7mst',
 		'wpcf7mst_section_developers',
@@ -87,15 +77,7 @@ function wpcf7mst_settings_init() {
  */
 add_action( 'admin_init', 'wpcf7mst_settings_init' );
 
-
 /**
- * Custom option and settings:
- *  - callback functions
- */
-
-
-/**
- * Developers section callback function.
  *
  * @param array $args  The settings array, defining title, id, callback.
  */
@@ -112,17 +94,10 @@ function wpcf7mst_section_developers_callback( $args ) {
 }
 
 /**
- * Pill field callbakc function.
- *
- * WordPress has magic interaction with the following keys: label_for, class.
- * - the "label_for" key value is used for the "for" attribute of the <label>.
- * - the "class" key value is used for the "class" attribute of the <tr> containing the field.
- * Note: you can add custom key value pairs to be used inside your callbacks.
  *
  * @param array $args
  */
 function wpcf7mst_field_url_cb( $args ) {
-	// Get the value of the setting we've registered with register_setting()
 	$options = get_option( 'wpcf7mst_options' );
 	?>
 	<input
