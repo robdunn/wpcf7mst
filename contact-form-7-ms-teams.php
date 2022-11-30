@@ -4,7 +4,7 @@ Plugin Name: Contact Form 7 to MS Teams
 description: Post Contact Form 7 data to MS Teams channels
 Version: 1.0
 Author: Rob Dunn
-License: GPLv2 or later
+License: MIT
 Text Domain: contact-form-7-ms-teams
 */
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
