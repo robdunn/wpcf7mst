@@ -1,0 +1,5 @@
+{
+    "name": "robdunn/wpcf7mst",
+    "description": "Wordpress plugin that posts Contact Form 7 data to MS Teams channels",
+    "license": "MIT"
+}
