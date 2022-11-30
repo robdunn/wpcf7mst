@@ -8,7 +8,6 @@ License: MIT
 Text Domain: contact-form-7-ms-teams
 */
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
-require_once 'vendor/autoload.php';
 
 function wpcf7mst_on_submit( $form, &$abort, $submission) {
 
