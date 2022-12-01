@@ -15,28 +15,46 @@ function wpcf7mst_on_submit( $form, &$abort, $submission) {
 
     $options = get_option( 'wpcf7mst_options' );
 
-    $url = $options['wpcf7mst_field_url'];
-    $data = array( 'text' => '<strong>From:</strong> ' . $data['your-name'] . '<br /><strong>Email:</strong> <a href="mailto:' . $data['your-email'] . '">' . $data['your-email'] . '</a><br /><strong>Subject:</strong> ' . $data['your-subject'] . '<br /><strong>Message:</strong> ' . $data['your-message'] );
+    $form_id = $form->id();
 
-    // Setup cURL
-    $ch = curl_init($url);
-    curl_setopt_array($ch, array(
-        CURLOPT_POST => TRUE,
-        CURLOPT_RETURNTRANSFER => TRUE,
-        CURLOPT_HTTPHEADER => array(
-            'Content-Type: application/json'
-        ),
-        CURLOPT_POSTFIELDS => json_encode($data)
-    ));
-    $response = curl_exec($ch);
-    if($response === FALSE){
-        die(curl_error($ch));
+    if (isset($options["wpcf7mst_field_url_" . $form_id]) && $options["wpcf7mst_field_url_" . $form_id] !== '') {
+
+        //TODO: get form labels
+        // $forms_args = array('post_type' => 'wpcf7_contact_form', 'posts_per_page' => -1);
+        // $cf7Forms = get_posts( $forms_args );
+        // foreach ($cf7Forms as &$cf7Form) {
+        //     if($cf7Form->ID === $form_id) {
+        //         error_log("wpcf7mst error: " . print_r($cf7Form, true), 0);
+        //     }
+        // }
+
+        $url = $options["wpcf7mst_field_url_" . $form_id];
+        error_log("url: " . print_r($url, true), 0);
+
+        $form_data = '';
+        foreach ($data as $key => $value) {
+            $form_data .= '<strong>' . $key . "</strong>: " . $value . "<br />";
+        }
+        $data = array( 'text' => $form_data );
+
+        // Setup cURL
+        $ch = curl_init($url);
+        curl_setopt_array($ch, array(
+            CURLOPT_POST => TRUE,
+            CURLOPT_RETURNTRANSFER => TRUE,
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json'
+            ),
+            CURLOPT_POSTFIELDS => json_encode($data)
+        ));
+        $response = curl_exec($ch);
+        if($response === FALSE){
+            error_log("wpcf7mst error: " . print_r(curl_error($ch), true), 0);
+            die(curl_error($ch));
+        }
+        $responseData = json_decode($response, TRUE);
+        curl_close($ch);
     }
-    $responseData = json_decode($response, TRUE);
-    curl_close($ch);
-
-    error_log("name: " . print_r($responseData, true), 0);
-
 }
 
 add_action('wpcf7_before_send_mail', 'wpcf7mst_on_submit', 10, 3);
@@ -56,19 +74,23 @@ function wpcf7mst_settings_init() {
 		'wpcf7mst'
 	);
 
-	// Register a new field in the "wpcf7mst_section_developers" section, inside the "wpcf7mst" page.
-	add_settings_field(
-		'wpcf7mst_field_url',
-		__( 'Webhook URL', 'wpcf7mst' ),
-		'wpcf7mst_field_url_cb',
-		'wpcf7mst',
-		'wpcf7mst_section_developers',
-		array(
-			'label_for'         => 'wpcf7mst_field_url',
-			'class'             => 'wpcf7mst_row',
-			'wpcf7mst_custom_data' => 'custom',
-		)
-	);
+
+    $forms_args = array('post_type' => 'wpcf7_contact_form', 'posts_per_page' => -1);
+	$cf7Forms = get_posts( $forms_args );
+    foreach ($cf7Forms as &$cf7Form) {
+        add_settings_field(
+            'wpcf7mst_field_form_url_' . $cf7Form->ID,
+            __( 'Webhook URL for ' . $cf7Form->post_title, 'wpcf7mst' ),
+            'wpcf7mst_field_form_url_cb',
+            'wpcf7mst',
+            'wpcf7mst_section_developers',
+            array(
+                'label_for'         => 'wpcf7mst_field_url_' . $cf7Form->ID,
+                'class'             => 'wpcf7mst_row',
+                'wpcf7mst_custom_data' => 'custom',
+            )
+        );
+    }
 }
 
 /**
@@ -96,7 +118,7 @@ function wpcf7mst_section_developers_callback( $args ) {
  *
  * @param array $args
  */
-function wpcf7mst_field_url_cb( $args ) {
+function wpcf7mst_field_form_url_cb( $args ) {
 	$options = get_option( 'wpcf7mst_options' );
 	?>
 	<input
@@ -106,9 +128,9 @@ function wpcf7mst_field_url_cb( $args ) {
 			data-custom="<?php echo esc_attr( $args['wpcf7mst_custom_data'] ); ?>"
 			name="wpcf7mst_options[<?php echo esc_attr( $args['label_for'] ); ?>]"
             value="<?php echo $options[ $args['label_for'] ]; ?>" />
-	<p class="description">
-		<?php esc_html_e( 'Enter your MS Teams Webhook connector url here', 'wpcf7mst' ); ?>
-	</p>
+        <p class="description">
+            <?php esc_html_e( 'Enter your MS Teams Webhook connector url here', 'wpcf7mst' ); ?>
+        </p>
 	<?php
 }
 
