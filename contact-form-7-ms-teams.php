@@ -19,23 +19,35 @@ function wpcf7mst_on_submit( $form, &$abort, $submission) {
 
     if (isset($options["wpcf7mst_field_url_" . $form_id]) && $options["wpcf7mst_field_url_" . $form_id] !== '') {
 
-        //TODO: get form labels
-        // $forms_args = array('post_type' => 'wpcf7_contact_form', 'posts_per_page' => -1);
-        // $cf7Forms = get_posts( $forms_args );
-        // foreach ($cf7Forms as &$cf7Form) {
-        //     if($cf7Form->ID === $form_id) {
-        //         error_log("wpcf7mst error: " . print_r($cf7Form, true), 0);
-        //     }
-        // }
-
         $url = $options["wpcf7mst_field_url_" . $form_id];
         error_log("url: " . print_r($url, true), 0);
 
         $form_data = '';
         foreach ($data as $key => $value) {
-            $form_data .= '<strong>' . $key . "</strong>: " . $value . "<br />";
+			$form_data .= '**' . str_replace('-', ' ', $key) . "**: " . $value . "\n\n\n";
         }
-        $data = array( 'text' => $form_data );
+        $data = array( 'type' => 'message', 'attachments' => array(array( 
+            "contentType" => "application/vnd.microsoft.card.adaptive",
+            "contentUrl" => null,
+            "content" => array(
+                '$schema' => "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type" => "AdaptiveCard",
+                "version" => "1.2",
+                "body" => array(
+                    array(
+                        "type" => "TextBlock",
+                        "text" => $form->title(),
+                        "weight" => "bolder",
+                        "size" => "large"
+                    ),
+                    array(
+                        "type" => "TextBlock",
+                        "text" => $form_data,
+                        "wrap" => true
+                    )
+                )
+            )
+        )) );
 
         // Setup cURL
         $ch = curl_init($url);
@@ -106,9 +118,11 @@ function wpcf7mst_section_developers_callback( $args ) {
 	?>
 	<p id="<?php echo esc_attr( $args['id'] ); ?>"><?php esc_html_e( 'To connect Contact Form 7 to MS Teams:', 'wpcf7mst' ); ?></p>
     <ol>
-        <li>Right click on the channel you wish to post form data to, and select "Connectors".</li>
-        <li>Add "Incoming Webhook"</li>
-        <li>Configure Incoming Webhook, by providing a webhook name. Click on Create</li>
+        <li>Right click on the channel you wish to post form data to, and select "Workflows".</li>
+        <li>Type "Post to a channel when a webhook request is received" in the "Find workflows" box.</li>
+		<li>Click the template.</li>
+        <li>Configure the Webhook, by providing a webhook name and selecting a connection. Click next</li>
+		<li>Choose a Team and Channel to post the hook to and click "Add workflow"</li>
         <li>Copy and paste the generated URL in the "Webhook URL" field below</li>
     </ol>
 	<?php
