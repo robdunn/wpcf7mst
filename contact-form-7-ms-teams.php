@@ -121,8 +121,8 @@ function wpcf7mst_section_developers_callback( $args ) {
         <li>Right click on the channel you wish to post form data to, and select "Workflows".</li>
         <li>Type "Post to a channel when a webhook request is received" in the "Find workflows" box.</li>
 		<li>Click the template.</li>
-        <li>Configure the Webhook, by providing a webhook name and selecting a connection. Click next</li>
-		<li>Choose a Team and Channel to post the hook to and click "Add workflow"</li>
+        <li>Configure the template by providing a webhook name and selecting a connection. Click next</li>
+		<li>Choose a Team and Channel to post the hook to and click "Add workflow".</li>
         <li>Copy and paste the generated URL in the "Webhook URL" field below</li>
     </ol>
 	<?php
